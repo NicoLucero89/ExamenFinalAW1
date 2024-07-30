@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resumen del Viaje</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header class="bg-primary text-white text-center py-3">
+        <h1>Resumen del Viaje</h1>
+    </header>
+    <main id="main-content" class="container mt-5">
+    </main>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const mainContent = document.getElementById('main-content');
+
+            const total = localStorage.getItem('total');
+            const people = localStorage.getItem('people');
+            const nights = localStorage.getItem('nights');
+            const hotelPrice = localStorage.getItem('hotelPrice');
+            const cityId = localStorage.getItem('selectedCity');
+
+            fetch('data.json')
+                .then(response => response.json())
+                .then(data => {
+                    const city = data.find(city => city.id == cityId);
+                    if (city) {
+                        const summary = document.createElement('div');
+                        summary.className = 'card';
+                        summary.innerHTML = `
+                            <div class="card-body">
+                                <h2 class="card-title">Resumen del Viaje</h2>
+                                <p class="card-text">Ciudad: ${city.city}</p>
+                                <p class="card-text">Cantidad de personas: ${people}</p>
+                                <p class="card-text">Cantidad de noches: ${nights}</p>
+                                <p class="card-text">Precio del hotel por noche: $${hotelPrice}</p>
+                                <p class="card-text">Total: $${total}</p>
+                                <h3 class="mt-4">Formulario de Información</h3>
+                                <form id="summary-form">
+                                    <div class="form-group">
+                                        <label for="name">Nombre:</label>
+                                        <input type="text" class="form-control" id="name" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="surname">Apellido:</label>
+                                        <input type="text" class="form-control" id="surname" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="email">Email:</label>
+                                        <input type="email" class="form-control" id="email" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="phone">Teléfono:</label>
+                                        <input type="tel" class="form-control" id="phone" required>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">Confirmar Viaje</button>
+                                    <button type="button" class="btn btn-danger ml-2" onclick="cancelTrip()">Cancelar Viaje</button>
+                                </form>
+                            </div>
+                        `;
+                        mainContent.appendChild(summary);
+
+                        document.getElementById('summary-form').addEventListener('submit', (e) => {
+                            e.preventDefault();
+                            alert('Viaje confirmado!');
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error al cargar los datos:', error);
+                    mainContent.innerHTML = '<div class="alert alert-danger" role="alert">Error al cargar los datos del viaje. Por favor, intenta nuevamente.</div>';
+                });
+
+            
+        });
+        function cancelTrip() {
+        localStorage.clear();
+        window.location.href = 'index.html'; 
+    }
+    </script>
+    
+</body>
+</html>
+

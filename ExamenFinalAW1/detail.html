@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalles del Viaje</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Detalles del Viaje</h1>
+    </header>
+    <main id="main-content">
+   
+    </main>
+    <script src="script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const cityId = localStorage.getItem('selectedCity');
+            const mainContent = document.getElementById('main-content');
+
+            fetch('data.json')
+                .then(response => response.json())
+                .then(data => {
+                    const city = data.find(city => city.id == cityId);
+                    if (city) {
+                        const cityDetails = document.createElement('div');
+                        cityDetails.innerHTML = `
+                            <h2>${city.city}</h2>
+                            <p>${city.desc}</p>
+                            <img src="${city.img}" alt="${city.city}">
+                            <h3>Hoteles Disponibles</h3>
+                            <div id="hotels">
+                                ${city.hotels.map(hotel => `
+                                    <div>
+                                        <input type="radio" name="hotel" value="${hotel.price}">
+                                        <label>${hotel.name} - $${hotel.price} por noche</label>
+                                    </div>
+                                `).join('')}
+                            </div>
+                            <h3>Calculadora de Precio</h3>
+                            <label for="people">Cantidad de personas:</label>
+                            <input type="number" id="people" value="1" min="1">
+                            <label for="nights">Cantidad de noches:</label>
+                            <input type="number" id="nights" value="1" min="1">
+                            <p>Total: $<span id="total">${city.price}</span></p>
+                            <button onclick="goToSummary()">Ir a Resumen</button>
+                        `;
+                        mainContent.appendChild(cityDetails);
+
+                        const updateTotal = () => {
+                            const people = document.getElementById('people').value;
+                            const nights = document.getElementById('nights').value;
+                            const hotelPrice = document.querySelector('input[name="hotel"]:checked').value;
+                            const total = city.price + (hotelPrice * people * nights);
+                            document.getElementById('total').textContent = total;
+                            localStorage.setItem('total', total);
+                            localStorage.setItem('people', people);
+                            localStorage.setItem('nights', nights);
+                            localStorage.setItem('hotelPrice', hotelPrice);
+                        };
+
+                        document.getElementById('people').addEventListener('input', updateTotal);
+                        document.getElementById('nights').addEventListener('input', updateTotal);
+                        document.getElementsByName('hotel').forEach(radio => {
+                            radio.addEventListener('change', updateTotal);
+                        });
+                    }
+                });
+        });
+
+        function goToSummary() {
+            window.location.href = 'summary.html';
+        }
+    </script>
+</body>
+</html>
